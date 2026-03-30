@@ -13,22 +13,24 @@ def getdf(csv):
 
 def summarize(csvs, n):
     if isinstance(csvs, str):
-        print(csvs,  "\n")
-        df = getdf(csvs)
-        print(f'Num rows: {df.shape[0]}')
-        print(f'Num cols: {df.shape[1]}', "\n")
-        cols = df.columns
-        x = 0
-        for col in cols:
-            x += 1
-            print(col, end = "")
-            if x >= 5:
-                print("\n")
-                x = 0
-            else:
-                print(" - ", end = "")
-        print("\b\b  \n\n", df.head(n))
+        print(f'{csvs}')
+        summarize(getdf(csvs), n)
     
     elif isinstance(csvs, dict):
         for csv in csvs:
             summarize(csv, n)
+
+    elif isinstance(csvs, pd.DataFrame):
+        print(f'Num rows: {csvs.shape[0]}')
+        print(f'Num cols: {csvs.shape[1]}', "\n")
+        cols = csvs.columns
+        x = 0
+        for col in cols:
+            x += 1
+            print(f'{col:^28}', end = "")
+            if x >= 5:
+                print("")
+                x = 0
+            else:
+                print(" - ", end = "")
+        print("\b\b  \n\n", csvs.head(n))

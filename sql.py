@@ -2,4 +2,4 @@ from config import *
 import psycopg
 
 df = getdf("test")
-summarize(df, 5)
+summarize(df, 2)

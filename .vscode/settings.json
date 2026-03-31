@@ -1,6 +1,6 @@
 {
     "files.exclude": {
-        "*.csv*": true,
+        "*.gz": true,
         "*.md": true,
         ".env": false,
         ".vscode": false,

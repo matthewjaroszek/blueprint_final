@@ -1,6 +1,5 @@
 from config import *
 
-
 def nc(csv, old, new):
     df = getdf(csv)
     df = df.rename(columns={old: new})

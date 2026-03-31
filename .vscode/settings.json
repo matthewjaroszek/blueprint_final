@@ -1,10 +1,10 @@
 {
     "files.exclude": {
         "*.csv*": true,
-        "final_project.png": true,
         "*.md": true,
         ".env": false,
         ".vscode": false,
         ".gitignore": false,
+        "*.db": true
     }
 }

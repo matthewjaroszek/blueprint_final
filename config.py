@@ -5,81 +5,49 @@ import sqlite3 as sql
 import psycopg2 as pgs
 import sys, argparse
 
-print()
 load_dotenv()
 sql_url = os.getenv('sql_url')
 
-gzs = {
-    "rc" : "gzs/rc.gz",
-    "dc" : "gzs/dc.gz",
-    "trc" : "gzs/trc.gz",
-    "tdc" : "gzs/tdc.gz",
-}
 
-dbs = {
-    "rc" : "dbs/rc.db",
-    "dc" : "dbs/dc.db",
-    "trc" : "dbs/trc.db",
-    "tdc" : "dbs/tdc.db",
-}
 
-def getdf(gz):
-    return pd.read_csv(gzs[gz])
+def copy_gz(original_name, copy_name):
+    copy = pd.read_csv(f'./gzs/{original_name}.gz')
+    copy.to_csv(f'./gzs/{copy_name}.gz', index = False)
 
-def summarize(gzs, r = 0, c = 0):
-    if isinstance(gzs, str):
-        print(f'{gzs}: ', end = "")
-        summarize(getdf(gzs), r, c)
+def get_df(file_name):
+    return pd.read_csv(f'./gzs/{file_name}.gz')
     
-    elif isinstance(gzs, dict) or isinstance(gzs, set):
-        for gz in gzs:
-            summarize(gz, r, c)
+def summarize_df(df, rows = 5):
+    print(f'{df.shape[0]} rows by {df.shape[1]} cols', '\n')
+    cols = df.columns
+    x = 0
+    for col in cols:
+        x += 1
+        print(f'{col:^20}', end = "")
+        if x >= 9:
+            print("")
+            x = 0
+        else:
+            print(" - ", end = "")
+    print(df.head(rows), "\n")
 
-    elif isinstance(gzs, pd.DataFrame):
-        print(f'{gzs.shape[0]} x {gzs.shape[1]} ', '-'*185, '\n')
-        cols = gzs.columns
-        x = 0
-        for col in cols:
-            x += 1
-            print(f'{col:^20}', end = "")
-            if x >= 9:
-                print("")
-                x = 0
-            else:
-                print(" - ", end = "")
-        print("\b\b  ")
-        print()
-        if (r*c > 0):
-            print("", gzs.iloc[:r, :c], "\n")
+def rename_col(df, old, new):
+    df.rename(columns={old: new}, inplace = True)
 
-def nc(gz, old, new):
-    df = getdf(gz)
-    df = df.rename(columns={old: new})
-    df.to_csv(gzs[gz], index = False)
+def delete_col(df, col):
+    df.drop(col, axis = 1, inplace = True)
 
-def drop(gz, col):
-    df = getdf(gz)
-    df = df.drop(col, axis = 1)
-    df.to_csv(gzs[gz], index = False)
-    return getdf(gz)
+def connect_sqlite(file_name):
+    conn = sql.connect(f'./dbs/{file_name}.db')
+    x = conn.cursor()
+    return x, conn
 
-def print_sql(x, dbs, b = True):
-    if (not b):
-        return
-    print(f"{dbs}", "-"*35, "\n")
-    x = x.fetchall()
-    for r in x:
-        print(r)
-    print()
+def check_args(i):
+    return len(sys.argv) > i and (int)(sys.argv[i]) == 1
 
-def run_sql(dbs, ex, b = True):
-    if (isinstance(dbs, str)):
-        conn = sql.connect(f'./dbs/{dbs}.db')
-        x = conn.cursor()
-        x.execute(ex.format(dbs))
-        print_sql(x, dbs, b)
-        conn.close()
-    
-    elif isinstance(dbs, dict) or isinstance(dbs, set):
-        for db in dbs:
-            run_sql(db, ex, b)
+def load_db(df, file_name):
+    x, conn = connect_sqlite(file_name)
+    df.to_sql(file_name, conn, if_exists='replace', index = False)
+    conn.commit()
+    conn.close()
+

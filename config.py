@@ -4,11 +4,10 @@ import os
 import sqlite3 as sql
 import psycopg2 as pgs
 import sys, argparse
+from flask import Flask, jsonify
 
 load_dotenv()
 sql_url = os.getenv('sql_url')
-
-
 
 def copy_gz(original_name, copy_name):
     copy = pd.read_csv(f'./gzs/{original_name}.gz')
@@ -17,8 +16,7 @@ def copy_gz(original_name, copy_name):
 def get_df(file_name):
     return pd.read_csv(f'./gzs/{file_name}.gz')
     
-def summarize_df(df, rows = 5):
-    print(f'{df.shape[0]} rows by {df.shape[1]} cols', '\n')
+def summarize_df(df):
     cols = df.columns
     x = 0
     for col in cols:
@@ -29,7 +27,7 @@ def summarize_df(df, rows = 5):
             x = 0
         else:
             print(" - ", end = "")
-    print(df.head(rows), "\n")
+    print("\n\n", df.head(5), "\n")
 
 def rename_col(df, old, new):
     df.rename(columns={old: new}, inplace = True)
@@ -38,7 +36,7 @@ def delete_col(df, col):
     df.drop(col, axis = 1, inplace = True)
 
 def connect_sqlite(file_name):
-    conn = sql.connect(f'./dbs/{file_name}.db')
+    conn = sql.connect(f'dbs/{file_name}.db')
     x = conn.cursor()
     return x, conn
 
@@ -50,4 +48,19 @@ def load_db(df, file_name):
     df.to_sql(file_name, conn, if_exists='replace', index = False)
     conn.commit()
     conn.close()
+
+def rename_update(file_name, old, new):
+    df = get_df(file_name)
+    rename_col(df, old, new)
+    df.to_csv(f'gzs/{file_name}.gz', index = False)
+
+def delete_update(file_name, col):
+    df = get_df(file_name)
+    delete_col(df, col)
+    df.to_csv(f'gzs/{file_name}.gz', index = False)
+
+def load_sql(df, table):
+    return 
+
+
 

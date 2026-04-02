@@ -1,7 +1,7 @@
 {
     "files.exclude": {
-        "gzs": false,
-        "dbs": false,
+        "gzs": true,
+        "dbs": true,
         "*.md": true,
         ".env": true,
         ".vscode": false,

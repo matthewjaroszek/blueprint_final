@@ -6,6 +6,8 @@
         ".env": true,
         ".vscode": false,
         ".gitignore": true,
-        "*.sql": true
+        "*.sql": true,
+        "*.db": true,
+        "*.gz": true
     }
 }

@@ -1,10 +1,11 @@
 {
     "files.exclude": {
-        "gzs": true,
-        "dbs": true,
+        "gzs": false,
+        "dbs": false,
         "*.md": true,
         ".env": true,
         ".vscode": false,
-        ".gitignore": true
+        ".gitignore": true,
+        "*.sql": true
     }
 }

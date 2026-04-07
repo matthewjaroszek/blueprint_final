@@ -16,18 +16,30 @@ def copy_gz(original_name, copy_name):
 def get_df(file_name):
     return pd.read_csv(f'./gzs/{file_name}.gz')
     
-def summarize_df(df):
+def summarize_df(df, rows = 0):
     cols = df.columns
     x = 0
     for col in cols:
         x += 1
-        print(f'{col:^20}', end = "")
-        if x >= 9:
+        print(f'{col:^50}', end = "")
+        if x >= 3:
             print("")
             x = 0
         else:
             print(" - ", end = "")
-    print("\n\n", df.head(5), "\n")
+    if (x != 0): print('')
+    print('\b\b  ')
+    if rows > 0 and rows <= len(df): print("\n", df.head(rows), "\n")
+    else: print("")
+
+def summarize_db(conn, rows = 0):
+    tables = pd.read_sql_query('SELECT name FROM sqlite_master WHERE type="table"', conn)['name']
+
+    for table in tables:
+        #print(f"=== {table} ===")
+        if rows >= 0:
+            df = pd.read_sql_query(f"SELECT * FROM {table} LIMIT {rows};", conn)
+            summarize_df(df, rows)
 
 def rename_col(df, old, new):
     df.rename(columns={old: new}, inplace = True)
@@ -59,10 +71,35 @@ def delete_update(file_name, col):
     delete_col(df, col)
     df.to_csv(f'gzs/{file_name}.gz', index = False)
 
+def cut_df(df, cols):
+    return df[cols]
+
+def clear_db(x):
+    x.execute(f'SELECT name FROM sqlite_master WHERE type=\'table\' AND name NOT LIKE \'sqlite_%\'')
+    for table in x.fetchall():
+        x.execute(f'DELETE FROM {table[0]}')
+
+def get_tables(x):
+    x.execute(f'SELECT name FROM sqlite_master WHERE type=\'table\' AND name NOT LIKE \'sqlite_%\'')
+
+def get_pragma(x, table):
+    x.execute(f'PRAGMA table_info({table})')
+
+def get_pragmas(x):
+    ret = []
+    get_tables(x)
+    for table in x.fetchall():
+        r1 = []
+        table = table[0]
+        r1.append(f'{table}')
+        get_pragma(x, table)
+        z = x.fetchall()
+        for col in z:
+            r1.append(col[1])
+        ret.append(r1)
+    return ret
+
 def load_sql(df, table):
-    return 
-
-
-
+    pass 
 
 

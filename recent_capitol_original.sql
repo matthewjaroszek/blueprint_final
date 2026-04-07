@@ -1,5 +1,5 @@
 CREATE TABLE locations (
-    location_id INTEGER PRIMARY KEY,
+    locations_id INTEGER PRIMARY KEY,
     country TEXT NOT NULL,
     location_name TEXT NOT NULL,
     latitude NUMERIC(8,2) NOT NULL,
@@ -9,9 +9,9 @@ CREATE TABLE locations (
 );
 
 CREATE TABLE weather_observations (
-    observation_id INTEGER PRIMARY KEY,
-    location_id BIGINT NOT NULL
-        REFERENCES locations(location_id)
+    weather_observations_id INTEGER PRIMARY KEY,
+    locations_id BIGINT NOT NULL
+        REFERENCES locations(locations_id)
         ON DELETE CASCADE,
 
     last_updated_epoch BIGINT NOT NULL,
@@ -46,12 +46,12 @@ CREATE TABLE weather_observations (
     gust_mph NUMERIC(5,1),
     --gust_kph NUMERIC(5,1),
 
-    UNIQUE (location_id, last_updated_epoch)
+    UNIQUE (locations_id, last_updated_epoch)
 );
 
 CREATE TABLE air_quality_observations (
-    observation_id BIGINT PRIMARY KEY
-        REFERENCES weather_observations(observation_id)
+    weather_observations_id BIGINT PRIMARY KEY
+        REFERENCES weather_observations(weather_observations_id)
         ON DELETE CASCADE,
 
     air_quality_carbon_monoxide NUMERIC(10,1),
@@ -65,8 +65,8 @@ CREATE TABLE air_quality_observations (
 );
 
 CREATE TABLE astronomy_observations (
-    observation_id BIGINT PRIMARY KEY
-        REFERENCES weather_observations(observation_id)
+    weather_observations_id BIGINT PRIMARY KEY
+        REFERENCES weather_observations(weather_observations_id)
         ON DELETE CASCADE,
 
     sunrise TIME,
@@ -78,7 +78,7 @@ CREATE TABLE astronomy_observations (
 );
 
 CREATE INDEX idx_weather_location_time
-    ON weather_observations (location_id, last_updated_epoch);
+    ON weather_observations (locations_id, last_updated_epoch);
 
 --COMMENT ON COLUMN locations.country IS 'Country of the weather data';
 --COMMENT ON COLUMN locations.location_name IS 'Name of the location (city)';

@@ -5,6 +5,7 @@
         "*.md": true,
         ".env": true,
         ".vscode": false,
-        ".gitignore": true
+        ".gitignore": true,
+        "*.sql": true
     }
 }
